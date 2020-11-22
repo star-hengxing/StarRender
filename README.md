@@ -19,7 +19,7 @@ resolution: 1920x1080
 |4|56s|  
 |1|91s|
 
-![](img/test.jpg)
+![](test/test.jpg)
 
 # Reference
 Ray Tracing in One Weekend  
