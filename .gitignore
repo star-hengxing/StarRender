@@ -1,0 +1,10 @@
+# My configurations
+output.ppm
+RayTracing.exe
+
+# directory
+bin
+img
+
+# CMake
+build
