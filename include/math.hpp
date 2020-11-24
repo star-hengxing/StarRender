@@ -142,15 +142,32 @@ inline Vector3f reflect(const Vector3f& v, const Vector3f v2)
 {
     return v - 2 * dot(v, v2) * v2;
 }
-// 折射
-inline Vector3f refract(const Vector3f& uv, const Vector3f& n, float etai_over_etat)
+/**
+ *
+ * \param v 单位入射光线向量
+ * \param n 单位法向量
+ * \param eta 折射介质/入射介质
+ * \return 是否有折射
+ */
+inline bool refract(const Vector3f& v, const Vector3f& n, float eta, Vector3f& result)
 {
-    float cos_theta = dot(-uv, n);
-    Vector3f r_out_parallel =  etai_over_etat * (uv + cos_theta * n);
-    Vector3f r_out_perp = -sqrt(1.0 - r_out_parallel.length()) * n;
-    return r_out_parallel + r_out_perp;
+    Vector3f uv = normalize(v);
+    float cos_theta_1 = - dot(uv, n);
+    float cos_theta_2 = 1.0f - eta * eta * (1.0f - cos_theta_1 * cos_theta_1);
+    if(cos_theta_2 > 0.0f)
+    {
+        result = eta * uv + n * (eta * cos_theta_1 - sqrt(cos_theta_2));
+        return true;
+    }
+    // 全反射
+    return false;
 }
-
+/**
+ * 反射系数的求解 逼近公式
+ * \param cosine 入射角余弦
+ * \param ref_idx n2/n1
+ * \return 反射系数
+ */
 inline float schlick(float cosine, float ref_idx)
 {
     float r0 = (1 - ref_idx) / (1 + ref_idx);
