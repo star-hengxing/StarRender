@@ -15,7 +15,7 @@ bool Sphere::hit(const Ray& ray, float t_min, float t_max, HitRecord& rec) const
     float det = b * b - a * c;                          // b^2 - 4ac
     if(det > 0)
     {
-        float root = sqrtf(det);
+        float root = sqrt(det);
         float temp = (-b - root) / a;
         if(temp < t_max && temp > t_min)
         {
@@ -37,6 +37,15 @@ bool Sphere::hit(const Ray& ray, float t_min, float t_max, HitRecord& rec) const
             rec.material = material;
             return true;
         }
+        //Getuv((rec.p - center) / radius, rec.u, rec.v);
     }
     return false;
+}
+
+void Sphere::Getuv(const Vector3f& p, float& u, float& v) const
+{
+    auto phi = atan2(p.z(), p.x());
+    auto theta = asin(p.y());
+    u = 1-(phi + kPi) / (2 * kPi);
+    v = (theta + kPi / 2) / kPi;
 }

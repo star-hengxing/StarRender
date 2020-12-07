@@ -36,6 +36,11 @@ public:
                          Vector3f& attenuation,
                          Ray& scattered) const = 0;
 
+    virtual Vector3f emitted(double u, double v, const Vector3f& p) const 
+    {
+        return Vector3f();
+    }
+
 };
 // 漫反射材质
 class Lambertian : public Material
@@ -119,4 +124,27 @@ public:
 private:
     float ref_idx; // Refractive index
 };
+
+class Light : public Material
+{
+public:
+    Light(std::shared_ptr<Texture> e) : emit(e) {}
+
+    bool scatter(   const Ray& ray,
+                    const HitRecord& rec,
+                    Vector3f& attenuation,
+                    Ray& scattered) const override
+    {
+        return false;
+    }
+
+    Vector3f emitted(double u, double v, const Vector3f& p) const
+    {
+        return emit->value(u, v, p);
+    }
+
+public:
+    std::shared_ptr<Texture> emit;
+};
+
 #endif // MATERIAL_HPP

@@ -60,11 +60,19 @@ Vector3f RayTracer::SetColor(const Ray& ray, int depth) const
     {
         Ray scattered;
         Vector3f attenuation;
+        Vector3f emitted = rec.material->emitted(rec.u, rec.v, rec.p);
         if(rec.material->scatter(ray, rec, attenuation, scattered))
         {
-            return attenuation * SetColor(scattered, depth-1);
+            return emitted + attenuation * SetColor(scattered, depth-1);
         }
-        return Vector3f();
+        else
+        {
+            return emitted;
+        }
+    }
+    else
+    {
+        return scene.backgroundColor;
     }
 #if 0
             Vector3f target = rec.p + rec.normal + RandomInUnitShpere();//阴影重一点，下面则轻很多
@@ -73,10 +81,10 @@ Vector3f RayTracer::SetColor(const Ray& ray, int depth) const
             return 0.5f * Vector3f(rec.normal.x() + 1,
                                     rec.normal.y() + 1,
                                     rec.normal.z() + 1);
-#endif
     Vector3f unit_direction = normalize(ray.direction());
     float t = 0.5f * (unit_direction.y() + 1.0f);
     return (1.0f - t) * Vector3f(1.0f, 1.0f, 1.0f) + t * Vector3f(0.5f, 0.7f, 1.0f);
+#endif
 }
 
 std::string RayTracer::SubRender(int start, int end) const
@@ -95,9 +103,9 @@ std::string RayTracer::SubRender(int start, int end) const
                 col = col + SetColor(ray, 50);
             }
             col = col * (1.0f / static_cast<float>(sample));
-            ss  << static_cast<int>(256 * clamp(0.f, 0.999f, col.x())) << ' '
-                << static_cast<int>(256 * clamp(0.f, 0.999f, col.y())) << ' '
-                << static_cast<int>(256 * clamp(0.f, 0.999f, col.z())) << '\n';
+            ss  << static_cast<int>(255.999f * sqrtf(col.x())) << ' '
+                << static_cast<int>(255.999f * sqrtf(col.y())) << ' '
+                << static_cast<int>(255.999f * sqrtf(col.z())) << '\n';
         }
         //UpdateProgress((scene.height - j) / static_cast<float>(scene.height));
     }
@@ -161,7 +169,7 @@ void RayTracer::render(bool mul_threads) const
                         col = col + SetColor(ray, 50);
                     }
                     col = col * (1.0f / static_cast<float>(sample));
-                    save << static_cast<int>(255.999f * sqrtf(col.x())) << ' '
+                    save    << static_cast<int>(255.999f * sqrtf(col.x())) << ' '
                             << static_cast<int>(255.999f * sqrtf(col.y())) << ' '
                             << static_cast<int>(255.999f * sqrtf(col.z())) << '\n';
                 }
